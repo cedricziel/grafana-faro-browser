@@ -35,7 +35,7 @@ export class InstrumentationInjector {
   inject(settings: Settings) {
     const script = this.scope.runtime.getURL(INSTRUMENTATION_SCRIPT_NAME);
     this.logger.log(
-      `[otel-extension] injecting ${INSTRUMENTATION_SCRIPT_NAME}`
+      `[faro-extension] injecting ${INSTRUMENTATION_SCRIPT_NAME}`
     );
     const tag = this.doc.createElement('script');
     tag.setAttribute('src', script);
@@ -43,7 +43,7 @@ export class InstrumentationInjector {
     // Config is based via this data attribute, since CSP might not allow inline script tags, so this is more robust.
     tag.setAttribute(`data-${DomAttributes.CONFIG}`, JSON.stringify(settings));
     this.doc.head.appendChild(tag);
-    this.logger.log(`[otel-extension] ${INSTRUMENTATION_SCRIPT_NAME} injected`);
+    this.logger.log(`[faro-extension] ${INSTRUMENTATION_SCRIPT_NAME} injected`);
   }
 
   static checkUrlFilter(urlFilter: string, href: string) {
@@ -61,12 +61,12 @@ export class InstrumentationInjector {
         )
       ) {
         this.logger.log(
-          `[otel-extension] ${this.doc.location.href} includes ${urlFilter}`
+          `[faro-extension] ${this.doc.location.href} includes ${urlFilter}`
         );
         this.inject(settings);
       } else {
         this.logger.log(
-          `[otel-extension] ${this.doc.location.href} does not include ${urlFilter}`
+          `[faro-extension] ${this.doc.location.href} does not include ${urlFilter}`
         );
       }
     });

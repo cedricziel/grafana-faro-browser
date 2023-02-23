@@ -23,9 +23,9 @@ import {
   TextField,
 } from '@material-ui/core';
 import * as React from 'react';
-import { ExporterOptionProps, ExporterType } from '../types';
+import { TransportOptionProps, TransportType } from '../types';
 
-export class ExporterOption extends React.Component<ExporterOptionProps> {
+export class TransportOption extends React.Component<TransportOptionProps> {
   override render() {
     return (
       <React.Fragment>
@@ -47,7 +47,7 @@ export class ExporterOption extends React.Component<ExporterOptionProps> {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {this.props.for}Exporter
+                {this.props.for}Transport
               </Link>
             </FormHelperText>
           </FormGroup>
@@ -66,8 +66,7 @@ export class ExporterOption extends React.Component<ExporterOptionProps> {
                 this.props.onValueChange
                   ? this.props.onValueChange(
                       this.props.for as
-                        | ExporterType.ZIPKIN
-                        | ExporterType.COLLECTOR_TRACE,
+                        | TransportType.FETCH,
                       event.target.value
                     )
                   : () => {}

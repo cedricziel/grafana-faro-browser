@@ -17,39 +17,23 @@
 import { styles } from './ui/styles';
 import { WithStyles } from '@material-ui/core';
 
-export interface Exporters {
-  [ExporterType.CONSOLE]: {
+export interface Transports {
+  [TransportType.CONSOLE]: {
     enabled: boolean;
   };
-  [ExporterType.ZIPKIN]: {
-    enabled: boolean;
-    url: string;
-  };
-  [ExporterType.COLLECTOR_TRACE]: {
+  [TransportType.FETCH]: {
     enabled: boolean;
     url: string;
   };
 }
 
-export interface InstrumentationConfiguration {
-  exporters: Exporters;
-  instrumentations: {
-    [InstrumentationType.DOCUMENT_LOAD]: {
-      enabled: boolean;
-    };
-    [InstrumentationType.FETCH]: {
-      enabled: boolean;
-    };
-    [InstrumentationType.XML_HTTP_REQUEST]: {
-      enabled: boolean;
-    };
-  };
-  withZoneContextManager: boolean;
+export interface FaroConfiguration {
+  transports: Transports;
 }
 
 export interface Settings {
   urlFilter: string;
-  exporters: Exporters;
+  transports: Transports;
 }
 
 export class Storage {
@@ -76,12 +60,12 @@ export interface PermissionAlertProps {
   onGrantPermission: () => void;
 }
 
-export interface ExporterOptionProps {
-  for: ExporterType;
+export interface TransportOptionProps {
+  for: TransportType;
   isEnabled: boolean;
-  onToggle: (exporter: ExporterType) => void;
+  onToggle: (exporter: TransportType) => void;
   onValueChange?: (
-    name: ExporterType.ZIPKIN | ExporterType.COLLECTOR_TRACE,
+    name: TransportType.FETCH,
     newValue: string
   ) => void;
   exporterPackageUrl: string;
@@ -114,10 +98,9 @@ export enum AppType {
   POPUP = 'popup',
 }
 
-export enum ExporterType {
+export enum TransportType {
   CONSOLE = 'Console',
-  ZIPKIN = 'Zipkin',
-  COLLECTOR_TRACE = 'CollectorTrace',
+  FETCH = 'Fetch'
 }
 
 export enum InstrumentationType {
@@ -127,7 +110,7 @@ export enum InstrumentationType {
 }
 
 export enum DomElements {
-  CONFIG_TAG = 'open-telemetry-instrumentation',
+  CONFIG_TAG = 'grafana-faro-instrumentation',
 }
 
 export enum DomAttributes {
@@ -135,8 +118,7 @@ export enum DomAttributes {
 }
 
 export enum PlaceholderValues {
-  ZIPKIN_URL = 'http://localhost:9411/api/v2/spans',
-  COLLECTOR_TRACE_URL = 'http://localhost:4318/v1/trace',
+  FETCH_URL = 'http://my-grafana-stack.grafana.net/collect'
 }
 
 export enum Labels {

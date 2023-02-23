@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ExporterType, Storage } from '../types';
+import { TransportType, Storage } from '../types';
 
 export function loadFromStorage(): Promise<Storage> {
   return new Promise<Storage>(resolve => {
@@ -23,15 +23,11 @@ export function loadFromStorage(): Promise<Storage> {
         isPermissionAlertDismissed: false,
         settings: {
           urlFilter: '',
-          exporters: {
-            [ExporterType.CONSOLE]: {
+          transports: {
+            [TransportType.CONSOLE]: {
               enabled: true,
             },
-            [ExporterType.ZIPKIN]: {
-              enabled: false,
-              url: '',
-            },
-            [ExporterType.COLLECTOR_TRACE]: {
+            [TransportType.FETCH]: {
               enabled: false,
               url: '',
             },

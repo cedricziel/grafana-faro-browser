@@ -14,41 +14,13 @@
  * limitations under the License.
  */
 
-import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
-import {
-  DomAttributes,
-  DomElements,
-  InstrumentationType,
-  Settings,
-} from '../types';
-import { WebInstrumentation } from './WebInstrumentation';
-import { Resource } from '@opentelemetry/resources';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { DomAttributes, DomElements, Settings } from "../types";
 
-const configTag = document.getElementById(DomElements['CONFIG_TAG']);
-const { exporters }: Settings = configTag
-  ? JSON.parse(String(configTag.dataset[DomAttributes['CONFIG']]))
+import { FaroInstrumentation } from "./FaroInstrumentation";
+
+const configTag = document.getElementById(DomElements["CONFIG_TAG"]);
+const { transports: transports }: Settings = configTag
+  ? JSON.parse(String(configTag.dataset[DomAttributes["CONFIG"]]))
   : {};
 
-new WebInstrumentation(
-  {
-    exporters,
-    instrumentations: {
-      [InstrumentationType.DOCUMENT_LOAD]: {
-        enabled: true,
-      },
-      [InstrumentationType.FETCH]: {
-        enabled: true,
-      },
-      [InstrumentationType.XML_HTTP_REQUEST]: {
-        enabled: true,
-      },
-    },
-    withZoneContextManager: true,
-  },
-  new WebTracerProvider({
-    resource: new Resource({
-      [SemanticResourceAttributes.SERVICE_NAME]: window.location.hostname,
-    }),
-  })
-).register();
+new FaroInstrumentation({ transports: transports }).initialize();

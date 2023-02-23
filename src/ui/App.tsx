@@ -16,11 +16,11 @@
 import * as React from 'react';
 import {
   AppType,
-  ExporterType,
   Labels,
   AppProps as AppProps,
   AppState as AppState,
   PlaceholderValues,
+  TransportType,
 } from '../types';
 import {
   AppBar,
@@ -31,7 +31,7 @@ import {
   Grid,
   TextField,
 } from '@material-ui/core';
-import { ExporterOption } from './ExporterOption';
+import { TransportOption } from './TransportOption';
 import { capitalCase } from 'change-case';
 import { SaveButton } from './SaveButton';
 import { OpenOptionsPage } from './OpenOptionsPage';
@@ -54,7 +54,7 @@ export class App extends React.Component<AppProps, AppState> {
     this.handleFilterChange = this.handleFilterChange.bind(this);
     this.handleSaveSettings = this.handleSaveSettings.bind(this);
     this.handleUrlChange = this.handleUrlChange.bind(this);
-    this.toggleExporter = this.toggleExporter.bind(this);
+    this.toggleTransport = this.toggleTransport.bind(this);
     this.onTogglePermissions = this.onTogglePermissions.bind(this);
     this.dismissPermissionAlert = this.dismissPermissionAlert.bind(this);
 
@@ -80,19 +80,19 @@ export class App extends React.Component<AppProps, AppState> {
   }
 
   handleUrlChange(
-    name: ExporterType.ZIPKIN | ExporterType.COLLECTOR_TRACE,
+    name: TransportType.FETCH,
     value: string
   ) {
     this.setState(state => {
-      state.settings.exporters[name].url = value;
+      state.settings.transports[name].url = value;
       return state;
     });
   }
 
-  toggleExporter(name: ExporterType) {
+  toggleTransport(name: TransportType) {
     this.setState(state => {
-      state.settings.exporters[name].enabled =
-        !state.settings.exporters[name].enabled;
+      state.settings.transports[name].enabled =
+        !state.settings.transports[name].enabled;
       return state;
     });
   }
@@ -159,7 +159,7 @@ export class App extends React.Component<AppProps, AppState> {
   }
 
   override render() {
-    const { urlFilter, exporters } = this.state.settings;
+    const { urlFilter, transports: transports } = this.state.settings;
 
     const classes = this.props.classes;
 
@@ -228,29 +228,20 @@ export class App extends React.Component<AppProps, AppState> {
               Exporter Settings
             </Typography>
             <Grid container spacing={2}>
-              <ExporterOption
-                for={ExporterType.CONSOLE}
-                isEnabled={exporters[ExporterType.CONSOLE].enabled}
-                onToggle={this.toggleExporter}
-                exporterPackageUrl="https://www.npmjs.com/package/@opentelemetry/sdk-trace-base"
+              <TransportOption
+                for={TransportType.CONSOLE}
+                isEnabled={transports[TransportType.CONSOLE].enabled}
+                onToggle={this.toggleTransport}
+                exporterPackageUrl="https://grafana.com/docs/grafana-cloud/faro-web-sdk/faro-web-sdk-components/provided-transports/#how-to-use-the-console-transport"
               />
-              <ExporterOption
-                for={ExporterType.ZIPKIN}
-                isEnabled={exporters[ExporterType.ZIPKIN].enabled}
-                onToggle={this.toggleExporter}
+              <TransportOption
+                for={TransportType.FETCH}
+                isEnabled={transports[TransportType.FETCH].enabled}
+                onToggle={this.toggleTransport}
                 onValueChange={this.handleUrlChange}
-                placeholderValue={PlaceholderValues.ZIPKIN_URL}
-                exporterPackageUrl="https://www.npmjs.com/package/@opentelemetry/exporter-zipkin"
-                value={exporters[ExporterType.ZIPKIN].url}
-              />
-              <ExporterOption
-                for={ExporterType.COLLECTOR_TRACE}
-                isEnabled={exporters[ExporterType.COLLECTOR_TRACE].enabled}
-                onToggle={this.toggleExporter}
-                onValueChange={this.handleUrlChange}
-                placeholderValue={PlaceholderValues.COLLECTOR_TRACE_URL}
-                exporterPackageUrl="https://www.npmjs.com/package/@opentelemetry/exporter-otlp-http"
-                value={exporters[ExporterType.COLLECTOR_TRACE].url}
+                placeholderValue={PlaceholderValues.FETCH_URL}
+                exporterPackageUrl="https://grafana.com/docs/grafana-cloud/faro-web-sdk/faro-web-sdk-components/provided-transports/#fetch"
+                value={transports[TransportType.FETCH].url}
               />
             </Grid>
           </Paper>

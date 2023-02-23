@@ -16,9 +16,10 @@
 
 /* eslint-disable node/no-unpublished-import */
 
-import * as path from 'path';
-import { mergeWithRules } from 'webpack-merge';
-import * as HtmlWebpackPlugin from 'html-webpack-plugin';
+import * as path from "path";
+import { mergeWithRules } from "webpack-merge";
+import * as HtmlWebpackPlugin from "html-webpack-plugin";
+import * as CopyPlugin from "copy-webpack-plugin";
 
 // Read the environment variables, and check for the existence of the "MV" variable
 // This can be used to only build the one or the other target.
@@ -26,23 +27,23 @@ module.exports = (env: { MV?: string; WEBPACK_BUILD: boolean }) => {
   // Build the extension for "Manifest Version 2" (Chromium, Firefox & others.)
   const baseConfig = {
     entry: {
-      background: './src/background/index.ts',
-      contentScript: './src/contentScript/index.ts',
-      instrumentation: './src/instrumentation/index.ts',
-      ui: './src/ui/index.tsx',
+      background: "./src/background/index.ts",
+      contentScript: "./src/contentScript/index.ts",
+      instrumentation: "./src/instrumentation/index.ts",
+      ui: "./src/ui/index.tsx",
     },
     module: {
       rules: [
         {
-          include: [path.resolve(__dirname, 'src/manifest.json5')],
+          include: [path.resolve(__dirname, "src/manifest.json5")],
           test: /manifest.json5$/,
           use: [
             {
-              loader: 'null-loader',
+              loader: "null-loader",
               options: {},
             },
             {
-              loader: path.resolve('src/utils/manifest-loader.ts'),
+              loader: path.resolve("src/utils/manifest-loader.ts"),
               options: {
                 manifestVersion: 2,
               },
@@ -50,11 +51,11 @@ module.exports = (env: { MV?: string; WEBPACK_BUILD: boolean }) => {
           ],
         },
         {
-          include: [path.resolve(__dirname, 'src')],
+          include: [path.resolve(__dirname, "src")],
           test: /\.tsx?$/,
           use: [
             {
-              loader: 'ts-loader',
+              loader: "ts-loader",
               options: {
                 transpileOnly: true,
                 experimentalWatchApi: true,
@@ -63,19 +64,19 @@ module.exports = (env: { MV?: string; WEBPACK_BUILD: boolean }) => {
           ],
         },
         {
-          include: [path.resolve(__dirname, 'src/icons')],
+          include: [path.resolve(__dirname, "src/icons")],
           test: /\.(jpe?g|png|webp)$/i,
           use: [
             // We are not going to use any of the images for real, throw away all output
             {
-              loader: 'null-loader',
+              loader: "null-loader",
               options: {},
             },
             {
-              loader: 'responsive-loader',
+              loader: "responsive-loader",
               options: {
-                name: '[name]_[width].[ext]',
-                outputPath: 'icons/',
+                name: "[name]_[width].[ext]",
+                outputPath: "icons/",
                 sizes: [16, 32, 48, 128],
               },
             },
@@ -84,32 +85,37 @@ module.exports = (env: { MV?: string; WEBPACK_BUILD: boolean }) => {
       ],
     },
     plugins: [
-      new HtmlWebpackPlugin({
-        chunks: ['ui'],
-        inject: 'head',
-        filename: 'options.html',
-        template: 'src/template.html',
+      new CopyPlugin({
+        patterns: [
+          "src/rules.json"
+        ]
       }),
       new HtmlWebpackPlugin({
-        chunks: ['ui'],
-        filename: 'popup.html',
-        inject: 'head',
-        template: 'src/template.html',
+        chunks: ["ui"],
+        inject: "head",
+        filename: "options.html",
+        template: "src/template.html",
+      }),
+      new HtmlWebpackPlugin({
+        chunks: ["ui"],
+        filename: "popup.html",
+        inject: "head",
+        template: "src/template.html",
       }),
     ],
     resolve: {
-      extensions: ['.tsx', '.ts', '.js'],
+      extensions: [".tsx", ".ts", ".js"],
     },
   };
 
   const merge = mergeWithRules({
     module: {
       rules: {
-        test: 'match',
-        include: 'match',
+        test: "match",
+        include: "match",
         use: {
-          loader: 'match',
-          options: 'replace',
+          loader: "match",
+          options: "replace",
         },
       },
     },
@@ -117,19 +123,19 @@ module.exports = (env: { MV?: string; WEBPACK_BUILD: boolean }) => {
 
   const targetMV2 = merge(baseConfig, {
     output: {
-      filename: '[name].js',
-      path: path.resolve(__dirname, 'build/mv2'),
+      filename: "[name].js",
+      path: path.resolve(__dirname, "build/mv2"),
     },
   });
   const targetMV3 = merge(baseConfig, {
     module: {
       rules: [
         {
-          include: [path.resolve(__dirname, 'src/manifest.json5')],
+          include: [path.resolve(__dirname, "src/manifest.json5")],
           test: /manifest.json5$/,
           use: [
             {
-              loader: path.resolve('src/utils/manifest-loader.ts'),
+              loader: path.resolve("src/utils/manifest-loader.ts"),
               options: {
                 manifestVersion: 3,
               },
@@ -139,8 +145,8 @@ module.exports = (env: { MV?: string; WEBPACK_BUILD: boolean }) => {
       ],
     },
     output: {
-      filename: '[name].js',
-      path: path.resolve(__dirname, 'build/mv3'),
+      filename: "[name].js",
+      path: path.resolve(__dirname, "build/mv3"),
     },
   });
 

@@ -16,7 +16,7 @@
 
 // the following two 'require' are here for webpack.
 require('../manifest.json5');
-require('../icons/otel-logo.png');
+require('../icons/grafana-logo.jpg');
 
 import { ProgrammaticContentScriptInjector } from './ProgrammaticContentScriptInjector';
 
