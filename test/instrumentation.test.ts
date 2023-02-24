@@ -19,23 +19,34 @@
 import * as chromeMock from 'sinon-chrome';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
-import { WebInstrumentation } from '../src/instrumentation/WebInstrumentation';
+import { FaroInstrumentation } from '../src/instrumentation/FaroInstrumentation';
 import {
-  ExporterType,
-  InstrumentationType,
+  TransportType,
   PlaceholderValues,
 } from '../src/types';
-import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
 import { JSDOM } from 'jsdom';
 import { TEST_URL } from './utils';
 
-describe('WebInstrumentation', () => {
+describe('FaroInstrumentation', () => {
   let sandbox: sinon.SinonSandbox;
-  let provider: WebTracerProvider;
+  let instrumentation : FaroInstrumentation;
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
-    provider = new WebTracerProvider();
+    instrumentation = new FaroInstrumentation(
+      {
+        transports: {
+          [TransportType.CONSOLE]: {
+            enabled: true,
+          },
+          [TransportType.FETCH]: {
+            enabled: true,
+            url: PlaceholderValues.FETCH_URL,
+          },
+        },
+      },
+    );
+
     const { window } = new JSDOM('<!doctype html><html><body></body></html>', {
       url: TEST_URL,
     });
@@ -50,39 +61,11 @@ describe('WebInstrumentation', () => {
     chromeMock.reset();
   });
 
-  it('adds exporters to the trace provider', () => {
-    const addSpanProcessorSpy = sinon.spy(provider, 'addSpanProcessor');
-    const instrumentation = new WebInstrumentation(
-      {
-        exporters: {
-          [ExporterType.CONSOLE]: {
-            enabled: true,
-          },
-          [ExporterType.ZIPKIN]: {
-            enabled: true,
-            url: PlaceholderValues.ZIPKIN_URL,
-          },
-          [ExporterType.COLLECTOR_TRACE]: {
-            enabled: true,
-            url: PlaceholderValues.COLLECTOR_TRACE_URL,
-          },
-        },
-        instrumentations: {
-          [InstrumentationType.DOCUMENT_LOAD]: {
-            enabled: true,
-          },
-          [InstrumentationType.FETCH]: {
-            enabled: false,
-          },
-          [InstrumentationType.XML_HTTP_REQUEST]: {
-            enabled: true,
-          },
-        },
-        withZoneContextManager: true,
-      },
-      provider
-    );
-    instrumentation.register();
-    assert.ok(addSpanProcessorSpy.callCount === 3);
+  it('adds transports to the instrumentation', () => {
+    const addSpanProcessorSpy = sinon.spy(instrumentation.targetTransports, 'push');
+
+    instrumentation.initialize();
+
+    assert.ok(addSpanProcessorSpy.callCount === 2);
   });
 });

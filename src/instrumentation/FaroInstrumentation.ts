@@ -2,24 +2,25 @@ import { FaroConfiguration, Transports, TransportType } from "../types";
 import {
   initializeFaro,
   getWebInstrumentations,
+  Transport,
   ConsoleTransport,
   FetchTransport,
   LogLevel,
 } from "@grafana/faro-web-sdk";
-import { TracingInstrumentation } from '@grafana/faro-web-tracing';
+import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 
 export class FaroInstrumentation {
   transports: Transports;
+  targetTransports: Transport[];
 
   constructor(config: FaroConfiguration) {
     this.transports = config.transports;
+    this.targetTransports = [];
   }
 
   initialize() {
-    const transports = [];
-
     if (this.transports[TransportType.CONSOLE].enabled) {
-      transports.push(
+      this.targetTransports.push(
         new ConsoleTransport({
           // Optional, if you want to print the messages using console.debug instead of console.log
           level: LogLevel.DEBUG,
@@ -28,12 +29,12 @@ export class FaroInstrumentation {
     }
 
     if (this.transports[TransportType.FETCH].enabled) {
-        transports.push(
-          new FetchTransport({
-            url: this.transports[TransportType.FETCH].url
-          })
-        );
-      }
+      this.targetTransports.push(
+        new FetchTransport({
+          url: this.transports[TransportType.FETCH].url,
+        })
+      );
+    }
 
     initializeFaro({
       app: {
@@ -41,9 +42,12 @@ export class FaroInstrumentation {
         version: "1.0.0",
         environment: "production",
       },
-      instrumentations: [...getWebInstrumentations(), new TracingInstrumentation()],
+      instrumentations: [
+        ...getWebInstrumentations(),
+        new TracingInstrumentation(),
+      ],
       isolate: true,
-      transports: transports,
+      transports: this.targetTransports,
     });
   }
 }
